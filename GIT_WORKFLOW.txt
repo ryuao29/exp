@@ -1,0 +1,62 @@
+Git操作（基本） - 簡潔ガイド
+
+目的: ローカルでの編集、コミット、リモートへのプッシュ、他者の変更の取得（pull）などの基本操作をまとめる。
+
+1) 基本の流れ
+- 作業開始: `git status` で状態確認
+- 編集: ファイルを編集
+- ステージ: `git add <file>` でステージに追加
+- コミット: `git commit -m "短い説明"`
+- プッシュ: `git push`（初回はブランチ名を指定して `git push -u origin <branch>`）
+
+2) clone / pull / fetch の違い
+- `git clone <repo>`: 新しくリポジトリをローカルに複製する
+- `git fetch`: リモートの参照を取得する（ローカルのブランチは更新されない）
+- `git.pull`: `git fetch` + `git merge` の短縮。リモートの変更を現在のブランチに取り込む。
+  - 安全にやるなら `git fetch` してから `git merge origin/<branch>` を確認して行う。
+
+3) ブランチ操作
+- 新しいブランチ作成: `git switch -c feature/my-change`
+- ローカルブランチ一覧: `git branch`
+- リモートブランチ一覧: `git branch -r` または `git branch -a`
+- ブランチ切替: `git switch <branch>`
+
+4) リモート操作
+- リモートURL確認: `git remote -v`
+- リモート追加: `git remote add origin <url>`
+- 新しいローカルブランチをリモートに公開: `git push -u origin <branch>`
+
+5) 競合と解決
+- `git pull` で競合が発生したら、対象ファイルを編集して競合マーカーを手作業で解消
+- 解消後: `git add <file>` → `git commit`（マージコミットが作られる）
+
+6) 取り消し・履歴確認
+- 変更を破棄（作業ツリー）: `git restore <file>`
+- ステージを外す: `git restore --staged <file>`
+- 直近コミットを修正（まだpushしてない場合）: `git commit --amend`
+- 履歴確認: `git log --oneline --graph --decorate -n 50`
+
+7) 一時退避
+- 作業を一時保存: `git stash push -m "説明"`
+- 取り出す: `git stash pop` または `git stash apply`
+
+8) PR(プルリク)ワークフロー（簡易）
+- 新ブランチで作業 → コミット → `git push -u origin <branch>` → GitHubでPR作成
+- PRレビュー後、マージや squash merge を行う
+
+9) ユーザー情報と認証
+- コミット用ユーザー名/メール: `git config user.name "YourName"` / `git config user.email you@example.com`
+- SSHの場合: `git@github.com:ユーザー/リポ.git` の形。HTTPSは `https://github.com/ユーザー/リポ.git`
+- 今回はSSH鍵を用意したため、このPCから `git push/pull` が可能。
+
+10) よく使うコマンド一覧（コピペ用）
+git status
+git add .
+git commit -m "短い説明"
+git pull --rebase    # リベースで更新を取り込む（履歴を綺麗に保つ）
+git push
+git switch -c feature/xxx
+git push -u origin feature/xxx
+
+---
+ファイル作成日: 2026-05-29
