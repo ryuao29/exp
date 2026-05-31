@@ -108,11 +108,11 @@ Remarks: Current MPI prototype does round-robin assignment of shallow subproblem
 
 ## How to understand the code (step-by-step)
 
-1. Read `docs/weekly` and `docs/week0_foundation_modules.md` to get background rationale.
+1. Read `docs/week0_foundation_modules.md` to get background rationale.
 2. Inspect `include/exp/bitset.hpp` and `include/exp/graph.hpp` to see basic data structures.
 3. Read `include/exp/bron_kerbosch.hpp` for the BK baseline and the task-parallel entrypoints (`enumerate_maximal_cliques_no_pivot` and `enumerate_maximal_cliques_no_pivot_task_parallel`).
 4. Run the sequential BK on a small example (see tests) and compare outputs with the OpenMP executable to gain confidence.
-5. Produce a recursion log and analyze it in `notebooks/recursion_analysis.ipynb` to pick task thresholds.
+5. Produce a recursion log and analyze it in `notebooks/recursion_analysis.ipynb` to pick task thresholds and to compute derived subtree statistics from `node_id`/`parent_id`.
 6. Try OpenMP prototype with the chosen `TASK_DEPTH`. Measure speedup and imbalance.
 7. If OpenMP shows promising splits, run MPI prototype on multiple machines and evaluate.
 
@@ -124,9 +124,10 @@ Remarks: Current MPI prototype does round-robin assignment of shallow subproblem
 
 ## Next recommended steps
 
-1. Use the notebook to choose `TASK_DEPTH` and `P_min` thresholds automatically (add a small grid-search cell).
-2. Improve MPI distribution to use subtree `subtree_elapsed` weights for balanced assignment.
+1. Use the notebook to choose `TASK_DEPTH` and `P_min` thresholds automatically by sweeping a small grid of values and comparing runtime, speedup, and imbalance.
+2. Extend the recursion-log analysis to compute subtree totals from `node_id` and `parent_id`, then use those derived weights for a more balanced MPI assignment.
 3. Add a CI check that validates `docs/recursion_tree_logging.md` headers match `include/exp/recursion_tree_logger.hpp` output.
+4. Compare at least three graph classes: sparse, moderately dense, and highly clustered graphs, so the evaluation is not tied to one input family.
 
 ## Contact points (files to open first)
 
