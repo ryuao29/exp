@@ -1,36 +1,13 @@
 #include <mpi.h>
 
-#include <algorithm>
-#include <fstream>
 #include <iostream>
-#include <stdexcept>
+#include <algorithm>
 #include <string>
-#include <unordered_set>
 #include <vector>
 
-using Graph = std::vector<std::unordered_set<int>>;
+#include "exp/graph.hpp"
 
-Graph load_graph(const std::string& path) {
-  std::ifstream in(path);
-  if (!in) {
-    throw std::runtime_error("failed to open graph file: " + path);
-  }
-
-  int n = 0;
-  in >> n;
-  Graph g(static_cast<size_t>(n));
-
-  int u = 0;
-  int v = 0;
-  while (in >> u >> v) {
-    if (u < 0 || v < 0 || u >= n || v >= n || u == v) {
-      continue;
-    }
-    g[static_cast<size_t>(u)].insert(v);
-    g[static_cast<size_t>(v)].insert(u);
-  }
-  return g;
-}
+using mce::Graph;
 
 std::vector<int> flatten(const std::vector<std::vector<int>>& frontier, int clique_width) {
   std::vector<int> out;
@@ -80,7 +57,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  const auto graph = load_graph(argv[1]);
+  const auto graph = Graph::load_from_file(argv[1]);
   const int depth_limit = std::max(0, std::stoi(argv[2]));
 
   std::vector<std::vector<int>> frontier(1);
@@ -92,10 +69,10 @@ int main(int argc, char** argv) {
     for (size_t i = static_cast<size_t>(rank); i < frontier.size(); i += static_cast<size_t>(world)) {
       const auto& clique = frontier[i];
       const int last = clique.empty() ? -1 : clique.back();
-      for (int candidate = last + 1; candidate < static_cast<int>(graph.size()); ++candidate) {
+      for (int candidate = last + 1; candidate < static_cast<int>(graph.vertex_count()); ++candidate) {
         bool ok = true;
         for (int v : clique) {
-          if (graph[static_cast<size_t>(v)].find(candidate) == graph[static_cast<size_t>(v)].end()) {
+          if (!graph.has_edge(static_cast<std::size_t>(v), static_cast<std::size_t>(candidate))) {
             ok = false;
             break;
           }

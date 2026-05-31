@@ -1,49 +1,17 @@
 #include <algorithm>
-#include <fstream>
 #include <iostream>
-#include <stdexcept>
+#include <memory>
 #include <string>
-#include <unordered_set>
 #include <vector>
+
+#include "exp/graph.hpp"
+#include "exp/logger.hpp"
 #ifdef USE_OPENMP
 #include <omp.h>
 #endif
 
-using Graph = std::vector<std::unordered_set<int>>;
-
-Graph load_graph(const std::string& path) {
-  std::ifstream in(path);
-  if (!in) {
-    throw std::runtime_error("failed to open graph file: " + path);
-  }
-
-  int n = 0;
-  in >> n;
-  Graph g(static_cast<size_t>(n));
-
-  int u = 0;
-  int v = 0;
-  while (in >> u >> v) {
-    if (u < 0 || v < 0 || u >= n || v >= n || u == v) {
-      continue;
-    }
-    g[static_cast<size_t>(u)].insert(v);
-    g[static_cast<size_t>(v)].insert(u);
-  }
-  return g;
-}
-
-std::vector<int> intersect_candidates(const std::vector<int>& candidates,
-                                      const std::unordered_set<int>& neigh) {
-  std::vector<int> out;
-  out.reserve(candidates.size());
-  for (int c : candidates) {
-    if (neigh.find(c) != neigh.end()) {
-      out.push_back(c);
-    }
-  }
-  return out;
-}
+using mce::CsvLogger;
+using mce::Graph;
 
 int main(int argc, char** argv) {
   if (argc < 3) {
@@ -52,7 +20,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  const auto graph = load_graph(argv[1]);
+  const auto graph = Graph::load_from_file(argv[1]);
   const int depth_limit = std::max(0, std::stoi(argv[2]));
 #ifdef USE_OPENMP
   if (argc >= 4) {
@@ -61,6 +29,11 @@ int main(int argc, char** argv) {
 #endif
 
   std::vector<std::vector<int>> frontier(1);
+  std::unique_ptr<CsvLogger> logger;
+  if (argc >= 5) {
+    logger = std::make_unique<CsvLogger>(argv[4]);
+    logger->write_header({"event", "depth", "frontier"});
+  }
 
   size_t max_clique_size_seen = 0;
   for (int depth = 0; depth < depth_limit; ++depth) {
@@ -73,10 +46,10 @@ int main(int argc, char** argv) {
       for (size_t i = 0; i < frontier.size(); ++i) {
         const auto& clique = frontier[i];
         const int last = clique.empty() ? -1 : clique.back();
-        for (int candidate = last + 1; candidate < static_cast<int>(graph.size()); ++candidate) {
+        for (int candidate = last + 1; candidate < static_cast<int>(graph.vertex_count()); ++candidate) {
           bool ok = true;
           for (int v : clique) {
-            if (graph[static_cast<size_t>(v)].find(candidate) == graph[static_cast<size_t>(v)].end()) {
+            if (!graph.has_edge(static_cast<std::size_t>(v), static_cast<std::size_t>(candidate))) {
               ok = false;
               break;
             }
@@ -94,10 +67,10 @@ int main(int argc, char** argv) {
 #else
     for (const auto& clique : frontier) {
       const int last = clique.empty() ? -1 : clique.back();
-      for (int candidate = last + 1; candidate < static_cast<int>(graph.size()); ++candidate) {
+      for (int candidate = last + 1; candidate < static_cast<int>(graph.vertex_count()); ++candidate) {
         bool ok = true;
         for (int v : clique) {
-          if (graph[static_cast<size_t>(v)].find(candidate) == graph[static_cast<size_t>(v)].end()) {
+          if (!graph.has_edge(static_cast<std::size_t>(v), static_cast<std::size_t>(candidate))) {
             ok = false;
             break;
           }
@@ -115,6 +88,9 @@ int main(int argc, char** argv) {
     max_clique_size_seen = std::max(max_clique_size_seen, static_cast<size_t>(depth + 1));
 
     std::cout << "depth=" << (depth + 1) << " frontier=" << frontier.size() << '\n';
+    if (logger) {
+      logger->write_row({"depth", std::to_string(depth + 1), std::to_string(frontier.size())});
+    }
     if (frontier.empty()) {
       break;
     }
