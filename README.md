@@ -41,6 +41,8 @@ BK 法、OpenMP、MPI、並列化の前提知識をまとめた入口は [docs/b
 
 再帰木ログの設計と解析手順は [docs/recursion_tree_logging.md](docs/recursion_tree_logging.md) にあります。
 
+逐次 BK の流れを一通りまとめた報告書は [docs/sequential_bk_analysis_report.md](docs/sequential_bk_analysis_report.md) にあります。
+
 OpenMP task 化の方針は [docs/openmp_taskization.md](docs/openmp_taskization.md) にあります。
 
 MPI の分散方針は [docs/mpi_task_distribution.md](docs/mpi_task_distribution.md) にあります。
