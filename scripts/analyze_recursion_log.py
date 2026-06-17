@@ -3,7 +3,7 @@
 Simple analyzer for recursion tree CSV logs produced by maximal_clique_bk.
 
 Usage:
-  python3 scripts/analyze_recursion_log.py /path/to/log.csv [--output-dir DIR]
+    python3 scripts/analyze_recursion_log.py /path/to/log.csv [--output-dir DIR]
 
 Outputs summary to stdout and writes CSVs `depth_summary.csv`, `depth_subtree_summary.csv`, `top_nodes.csv`, and `node_subtree_summary.csv` into output dir.
 """
@@ -178,9 +178,10 @@ def write_node_subtree_csv(nodes, outpath):
 def main():
     if len(sys.argv) < 2:
         print('usage: analyze_recursion_log.py /path/to/log.csv [--output-dir DIR]')
+        print('default output dir: analyze (relative to current working directory)')
         sys.exit(2)
     path = sys.argv[1]
-    outdir = '/tmp/bk_analysis'
+    outdir = 'analyze'
     if '--output-dir' in sys.argv:
         i = sys.argv.index('--output-dir')
         if i+1 < len(sys.argv):

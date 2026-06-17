@@ -6,12 +6,24 @@
 
 #include <chrono>
 #include <cstddef>
+#include <string>
 #include <utility>
 #include <vector>
 
 namespace mce {
 
 using Clique = std::vector<std::size_t>;
+
+inline std::string clique_to_string(const Clique& clique) {
+  std::string result;
+  for (std::size_t i = 0; i < clique.size(); ++i) {
+    if (i != 0) {
+      result.push_back(' ');
+    }
+    result += std::to_string(clique[i]);
+  }
+  return result;
+}
 
 template <typename Callback>
 void bron_kerbosch_no_pivot_recursive(const std::vector<Bitset>& neighbors,
@@ -63,6 +75,7 @@ void bron_kerbosch_no_pivot_recursive(const std::vector<Bitset>& neighbors,
                         parent_id,
                         depth,
                         current.size(),
+                        logger ? clique_to_string(current) : std::string{},
                         p_size,
                         x_size,
                         candidates.size(),

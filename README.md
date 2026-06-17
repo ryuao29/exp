@@ -159,11 +159,101 @@ OpenMP task 版 BK:
 ./build/maximal_clique_bk graph.txt log.csv
 ```
 
+部分クリークの頂点列も出す再帰木ログ:
+
+```bash
+./build/maximal_clique_bk graph.txt log.csv --show-clique
+```
+
+`node_id` は探索の順番ではなく、再帰呼び出しが終わったあとに記録される順番です。そのため、木の根が最後に出てきます。
+
+再帰木ログの解析（プロジェクト内に出力）:
+
+```bash
+python3 scripts/analyze_recursion_log.py log.csv
+python3 scripts/analyze_recursion_log.py log.csv --output-dir analyze
+```
+
+研究実験用の推奨手順（毎回同じ流れで実行）:
+
+```bash
+cd /home/ryu/exp
+cmake --build build --target maximal_clique_bk -j
+./build/maximal_clique_bk graph.txt log.csv --show-clique
+python3 scripts/analyze_recursion_log.py log.csv --output-dir analyze
+head -n 20 analyze/depth_summary.csv
+head -n 20 analyze/top_nodes.csv
+```
+
+上記はどちらも `exp/analyze/` に解析結果を作ります（`exp` で実行した場合）。
+
+主な出力と読み方:
+
+- `analyze/depth_summary.csv`
+  - 深さごとのノード数と `elapsed_us` 合計。
+  - 深い層でノード数が増えるか、どの層が重いかを確認。
+- `analyze/depth_subtree_summary.csv`
+  - 深さごとの部分木コスト（`subtree_elapsed_us`）と子孫コスト。
+  - 並列化候補の深さを決める目安になる。
+- `analyze/top_nodes.csv`
+  - 部分木コスト上位ノード。
+  - ボトルネックの再帰ノード特定に使う。
+- `analyze/node_subtree_summary.csv`
+  - 各ノードの部分木集計（ノード数、自己時間比率など）。
+  - 1ノード単位の詳細分析に使う。
+
+`matplotlib` がある場合は次も出力されます:
+
+- `analyze/depth_distribution.png`
+- `analyze/top_subtree_elapsed.png`
+- `analyze/depth_subtree_elapsed.png`
+
 テスト:
 
 ```bash
 ctest --test-dir build --output-on-failure
 ```
+
+## Git の使い方（最短）
+
+基本フロー（編集 -> コミット -> push）:
+
+```bash
+git status
+git add <file1> <file2> ...
+git commit -m "変更内容を1行で"
+git push
+```
+
+初回で push 先の追跡設定がない場合:
+
+```bash
+git push -u origin main
+```
+
+作業ブランチを切って進める場合:
+
+```bash
+git switch -c feature/<topic>
+git add <files>
+git commit -m "<topic>: update"
+git push -u origin feature/<topic>
+```
+
+よく使う補助コマンド:
+
+```bash
+git log --oneline --graph --decorate -n 20
+git fetch
+git pull --rebase
+git restore --staged <file>
+git restore <file>
+```
+
+補足:
+
+- より詳しい手順は `GIT_WORKFLOW.txt` を参照。
+- 解析生成物（`analyze/`, `log.csv` など）をコミットしたくない場合は `git add` 対象を明示する。
 
 ## 1か月の進め方 (目安)
 

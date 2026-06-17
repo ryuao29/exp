@@ -25,16 +25,19 @@ void print_clique(const Clique& clique) {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    std::cerr << "usage: " << argv[0] << " <graph.txt> [log.csv]\n";
-    std::cerr << "prints each maximal clique on one line; optional CSV recursion log can be enabled\n";
+    std::cerr << "usage: " << argv[0] << " <graph.txt> [log.csv] [--show-clique]\n";
+    std::cerr << "prints each maximal clique on one line; optional CSV recursion log can include clique vertices\n";
     return 1;
   }
 
   const auto graph = Graph::load_from_file(argv[1]);
 
+  const bool enable_log = argc >= 3;
+  const bool show_clique_vertices = argc >= 4 && std::string(argv[3]) == "--show-clique";
+
   std::unique_ptr<mce::RecursionTreeCsvLogger> logger;
-  if (argc >= 3) {
-    logger = std::make_unique<mce::RecursionTreeCsvLogger>(argv[2]);
+  if (enable_log) {
+    logger = std::make_unique<mce::RecursionTreeCsvLogger>(argv[2], true, show_clique_vertices);
   }
 
   std::size_t clique_count = 0;
