@@ -50,3 +50,23 @@ If you want plots, install `matplotlib`:
 python3 -m pip install matplotlib
 ```
 
+## Recursion tree visualization
+
+You can generate a tree view directly from `log.csv`.
+
+Usage:
+
+```bash
+python3 scripts/visualize_recursion_tree.py log.csv
+python3 scripts/visualize_recursion_tree.py log.csv --output-dir analyze
+```
+
+Outputs:
+
+- `analyze/recursion_tree_ascii.txt`
+	- Plain text tree with parent-child structure.
+- `analyze/recursion_tree_mermaid.mmd`
+	- Mermaid flowchart source for rendering in Markdown viewers.
+- `analyze/recursion_tree_view.md`
+	- Combined Markdown file that includes both Mermaid and ASCII views.
+

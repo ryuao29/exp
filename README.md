@@ -174,6 +174,7 @@ OpenMP task 版 BK:
 ```bash
 python3 scripts/analyze_recursion_log.py log.csv
 python3 scripts/analyze_recursion_log.py log.csv --output-dir analyze
+python3 scripts/visualize_recursion_tree.py log.csv --output-dir analyze
 ```
 
 研究実験用の推奨手順（毎回同じ流れで実行）:
@@ -183,8 +184,10 @@ cd /home/ryu/exp
 cmake --build build --target maximal_clique_bk -j
 ./build/maximal_clique_bk graph.txt log.csv --show-clique
 python3 scripts/analyze_recursion_log.py log.csv --output-dir analyze
+python3 scripts/visualize_recursion_tree.py log.csv --output-dir analyze
 head -n 20 analyze/depth_summary.csv
 head -n 20 analyze/top_nodes.csv
+head -n 50 analyze/recursion_tree_ascii.txt
 ```
 
 上記はどちらも `exp/analyze/` に解析結果を作ります（`exp` で実行した場合）。
@@ -209,6 +212,27 @@ head -n 20 analyze/top_nodes.csv
 - `analyze/depth_distribution.png`
 - `analyze/top_subtree_elapsed.png`
 - `analyze/depth_subtree_elapsed.png`
+
+探索木の可視化（テキスト/Markdown）:
+
+```bash
+python3 scripts/visualize_recursion_tree.py log.csv --output-dir analyze
+```
+
+主な出力:
+
+- `analyze/recursion_tree_ascii.txt`
+  - テキストベースの木構造。各ノードに `R`, `depth`, `|P|`, `|X|`, 実行時間、葉判定を表示。
+  - `path=0-1-2` のような探索中の頂点列も表示する。
+  - 葉ノード（`is_leaf=1`）は `leaf` マークで識別。
+- `analyze/recursion_tree_mermaid.mmd`
+  - Mermaid フローチャート形式。VS Code 等で自動レンダリング。
+  - 葉ノード は緑色でハイライト。
+  - `N0 --> N1` のような矢印は、BK の再帰木における親子関係を表す。
+- `analyze/recursion_tree_view.md`
+  - Mermaid コードをマークダウン形式で保存したもの。GitHub で自動表示。
+
+この可視化は、探索木がどのように展開されるか、どの枝が深いか、どこで打ち止めになるかを一目で理解するのに役立つ。
 
 テスト:
 

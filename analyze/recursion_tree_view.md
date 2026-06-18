@@ -1,0 +1,53 @@
+# Recursion Tree View
+
+Source CSV: `log.csv`
+
+## Mermaid
+
+```mermaid
+flowchart TD
+  N0["id=0 R={} d=0 P=5 X=0 t=72us path={}"]
+  N1["id=1 R=0 d=1 P=2 X=0 t=51us path=0"]
+  N2["id=2 R=0 1 d=2 P=1 X=0 t=45us path=0-1"]
+  N3["id=3 R=0 1 2 d=3 P=0 X=0 t=38us leaf path=0-1-2"]
+  N4["id=4 R=0 2 d=2 P=0 X=1 t=0us path=0-2"]
+  N5["id=5 R=1 d=1 P=1 X=1 t=2us path=1"]
+  N6["id=6 R=1 2 d=2 P=0 X=1 t=0us path=1-2"]
+  N7["id=7 R=2 d=1 P=1 X=2 t=4us path=2"]
+  N8["id=8 R=2 3 d=2 P=0 X=0 t=2us leaf path=2-3"]
+  N9["id=9 R=3 d=1 P=1 X=1 t=3us path=3"]
+  N10["id=10 R=3 4 d=2 P=0 X=0 t=1us leaf path=3-4"]
+  N11["id=11 R=4 d=1 P=0 X=1 t=0us path=4"]
+  N0 --> N1
+  N0 --> N5
+  N0 --> N7
+  N0 --> N9
+  N0 --> N11
+  N1 --> N2
+  N1 --> N4
+  N2 --> N3
+  N5 --> N6
+  N7 --> N8
+  N9 --> N10
+  classDef leaf fill:#dff7df,stroke:#2e7d32,color:#1b5e20
+  class N3,N8,N10 leaf
+  classDef root fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+  class N0 root
+```
+
+## ASCII Tree
+
+```text
+id=0 R={} d=0 P=5 X=0 t=72us path={}
+|-- id=1 R=0 d=1 P=2 X=0 t=51us path=0
+|   |-- id=2 R=0 1 d=2 P=1 X=0 t=45us path=0-1
+|   |   `-- id=3 R=0 1 2 d=3 P=0 X=0 t=38us leaf path=0-1-2
+|   `-- id=4 R=0 2 d=2 P=0 X=1 t=0us path=0-2
+|-- id=5 R=1 d=1 P=1 X=1 t=2us path=1
+|   `-- id=6 R=1 2 d=2 P=0 X=1 t=0us path=1-2
+|-- id=7 R=2 d=1 P=1 X=2 t=4us path=2
+|   `-- id=8 R=2 3 d=2 P=0 X=0 t=2us leaf path=2-3
+|-- id=9 R=3 d=1 P=1 X=1 t=3us path=3
+|   `-- id=10 R=3 4 d=2 P=0 X=0 t=1us leaf path=3-4
+`-- id=11 R=4 d=1 P=0 X=1 t=0us path=4
+```
